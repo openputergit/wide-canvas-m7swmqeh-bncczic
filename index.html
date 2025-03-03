@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melody Market - Musical Instruments Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #e53e3e;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-teal-600 text-white p-4 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Melody Market</h1>
+            <div class="flex items-center space-x-6">
+                <a href="#" class="hover:text-teal-200"><i class="bi bi-house-door"></i> Home</a>
+                <div class="relative">
+                    <a href="#" class="hover:text-teal-200" id="cartButton">
+                        <i class="bi bi-cart3 text-xl"></i>
+                        <span class="cart-badge" id="cartCount">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Categories -->
+        <div class="flex overflow-x-auto pb-4 mb-6 gap-4">
+            <button class="category-btn bg-teal-600 text-white px-6 py-2 rounded-full whitespace-nowrap">All</button>
+            <button class="category-btn bg-white text-teal-600 px-6 py-2 rounded-full whitespace-nowrap border border-teal-600">Guitars</button>
+            <button class="category-btn bg-white text-teal-600 px-6 py-2 rounded-full whitespace-nowrap border border-teal-600">Pianos</button>
+            <button class="category-btn bg-white text-teal-600 px-6 py-2 rounded-full whitespace-nowrap border border-teal-600">Drums</button>
+            <button class="category-btn bg-white text-teal-600 px-6 py-2 rounded-full whitespace-nowrap border border-teal-600">Wind</button>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="productsGrid">
+            <!-- Products will be dynamically inserted here -->
+        </div>
+    </main>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="bg-white max-w-md mx-auto mt-20 rounded-lg shadow-lg">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Shopping Cart</h2>
+                    <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-700">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div id="cartItems" class="space-y-4 max-h-96 overflow-y-auto">
+                    <!-- Cart items will be inserted here -->
+                </div>
+                <div class="mt-6 border-t pt-4">
+                    <div class="flex justify-between mb-4">
+                        <span class="font-semibold">Total:</span>
+                        <span class="font-bold" id="cartTotal">$0.00</span>
+                    </div>
+                    <button onclick="checkout()" class="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700">
+                        Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample products data
+        const products = [
+            {
+                id: 1,
+                name: "Acoustic Guitar",
+                price: 299.99,
+                image: "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=800",
+                category: "Guitars",
+                description: "Beautiful acoustic guitar with rich tone and solid wood construction"
+            },
+            {
+                id: 2,
+                name: "Digital Piano",
+                price: 799.99,
+                image: "https://images.unsplash.com/photo-1552422535-c45813c61732?w=800",
+                category: "Pianos",
+                description: "88-key weighted digital piano with authentic grand piano sound"
+            },
+            {
+                id: 3,
+                name: "Drum Set",
+                price: 649.99,
+                image: "https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=800",
+                category: "Drums",
+                description: "Complete drum set with cymbals and hardware"
+            },
+            {
+                id: 4,
+                name: "Saxophone",
+                price: 899.99,
+                image: "https://images.unsplash.com/photo-1573871669414-010dbf73ca84?w=800",
+                category: "Wind",
+                description: "Professional alto saxophone with rich brass finish"
+            },
+        ];
+
+        let cart = [];
+
+        // Render products
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = products.map(product => `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-2">${product.name}</h3>
+                        <p class="text-gray-600 text-sm mb-2">${product.description}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-teal-600">$${product.price}</span>
+                            <button onclick="addToCart(${product.id})" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Add to cart
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            cart.push(product);
+            updateCartCount();
+            // Show feedback
+            const feedback = document.createElement('div');
+            feedback.textContent = 'Added to cart!';
+            feedback.className = 'fixed bottom-4 right-4 bg-teal-600 text-white px-4 py-2 rounded-lg';
+            document.body.appendChild(feedback);
+            setTimeout(() => feedback.remove(), 2000);
+        }
+
+        // Update cart count
+        function updateCartCount() {
+            document.getElementById('cartCount').textContent = cart.length;
+        }
+
+        // Toggle cart modal
+        function toggleCart() {
+            const modal = document.getElementById('cartModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                renderCart();
+            }
+        }
+
+        // Render cart items
+        function renderCart() {
+            const cartItems = document.getElementById('cartItems');
+            cartItems.innerHTML = cart.map((item, index) => `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded">
+                        <div class="ml-4">
+                            <h4 class="font-semibold">${item.name}</h4>
+                            <p class="text-teal-600">$${item.price}</p>
+                        </div>
+                    </div>
+                    <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+            updateCartTotal();
+        }
+
+        // Remove from cart
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartCount();
+            renderCart();
+        }
+
+        // Update cart total
+        function updateCartTotal() {
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Checkout function
+        function checkout() {
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            alert('Thank you for your purchase! This is where the payment processing would happen.');
+            cart = [];
+            updateCartCount();
+            toggleCart();
+        }
+
+        // Event listeners
+        document.getElementById('cartButton').addEventListener('click', toggleCart);
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.category-btn').forEach(b => {
+                    b.classList.remove('bg-teal-600', 'text-white');
+                    b.classList.add('bg-white', 'text-teal-600', 'border', 'border-teal-600');
+                });
+                this.classList.remove('bg-white', 'text-teal-600', 'border', 'border-teal-600');
+                this.classList.add('bg-teal-600', 'text-white');
+            });
+        });
+
+        // Initial render
+        renderProducts();
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
